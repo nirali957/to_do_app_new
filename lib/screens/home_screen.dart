@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:to_do_app_new/model/to_do_model.dart';
 import 'package:to_do_app_new/screens/to_do_add_screen.dart';
+import 'package:to_do_app_new/screens/to_do_complete_screen.dart';
+import 'package:to_do_app_new/utiles/constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,6 +20,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home Screen"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ToDoCompleteScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.check_box),
+          ),
+        ],
       ),
       body: listOfData.isEmpty
           ? const Center(
@@ -29,16 +44,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             )
-          : ListView.builder(
+          : ListView.separated(
               itemCount: listOfData.length,
               padding: const EdgeInsets.symmetric(vertical: 15),
+              separatorBuilder: (context, index) => const SizedBox(height: 15),
               itemBuilder: (context, index) {
                 final item = listOfData[index];
                 return Slidable(
-                  key: ValueKey(index),
+                  key: UniqueKey(),
                   startActionPane: ActionPane(
                     motion: const ScrollMotion(),
-                    dismissible: DismissiblePane(onDismissed: () {}),
+                    dismissible: DismissiblePane(
+                      onDismissed: () {
+                        listOfCompleteData.add(item);
+                        listOfData.removeAt(index);
+                        setState(() {});
+                      },
+                    ),
                     children: [
                       SlidableAction(
                         onPressed: (context) {},
@@ -53,15 +75,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     motion: const ScrollMotion(),
                     children: [
                       SlidableAction(
-                        flex: 2,
-                        onPressed: (context) {},
+                        onPressed: (context) async {
+                          dynamic data = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ToDoAddScreen(
+                                item: item,
+                              ),
+                            ),
+                          );
+
+                          if (data != null) {
+                            listOfData[index] = data;
+                            setState(() {});
+                          }
+                        },
                         backgroundColor: const Color(0xFF7BC043),
                         foregroundColor: Colors.white,
                         icon: Icons.edit_rounded,
                         label: 'Edit',
                       ),
                       SlidableAction(
-                        onPressed: (context) {},
+                        onPressed: (context) {
+                          listOfData.removeAt(index);
+                          setState(() {});
+                        },
                         backgroundColor: const Color(0xFFFE4A49),
                         foregroundColor: Colors.white,
                         icon: Icons.delete,
@@ -69,14 +107,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15).copyWith(top: 0),
-                    child: ListTile(
-                      tileColor: Colors.grey.shade400,
-                      title: Text('${item.title}'),
-                      subtitle: Text('${item.description}'),
-                      trailing: Text('${item.time}'),
-                    ),
+                  child: ListTile(
+                    tileColor: Colors.grey.shade400,
+                    title: Text('${item.title}'),
+                    subtitle: Text('${item.description}'),
+                    trailing: Text('${item.time}'),
                   ),
                 );
               },

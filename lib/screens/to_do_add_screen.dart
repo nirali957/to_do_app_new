@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:to_do_app_new/model/to_do_model.dart';
 
 class ToDoAddScreen extends StatefulWidget {
-  const ToDoAddScreen({Key? key}) : super(key: key);
+  final ToDoModel? item;
+  const ToDoAddScreen({Key? key, this.item}) : super(key: key);
 
   @override
   State<ToDoAddScreen> createState() => _ToDoAddScreenState();
@@ -13,6 +14,18 @@ class _ToDoAddScreenState extends State<ToDoAddScreen> {
   TextEditingController dateController = TextEditingController();
   TextEditingController timeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    if (widget.item != null) {
+      titleController.text = widget.item!.title!;
+      dateController.text = widget.item!.date!;
+      timeController.text = widget.item!.time!;
+      descriptionController.text = widget.item!.description!;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
