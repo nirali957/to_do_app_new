@@ -4,6 +4,7 @@ import 'package:to_do_app_new/model/to_do_model.dart';
 import 'package:to_do_app_new/screens/to_do_add_screen.dart';
 import 'package:to_do_app_new/screens/to_do_complete_screen.dart';
 import 'package:to_do_app_new/utiles/constants.dart';
+import 'package:to_do_app_new/utiles/local_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,7 +14,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  LocalData localData = LocalData();
   List<ToDoModel> listOfData = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getToDoData();
+    super.initState();
+  }
+
+  getToDoData() async {
+    dynamic data = await localData.getObject(key: localData.todoData);
+    listOfData.add(ToDoModel.fromJson(data));
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {

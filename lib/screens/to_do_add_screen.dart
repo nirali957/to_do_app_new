@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:to_do_app_new/model/to_do_model.dart';
+import 'package:to_do_app_new/utiles/local_data.dart';
 
 class ToDoAddScreen extends StatefulWidget {
   final ToDoModel? item;
@@ -10,6 +13,8 @@ class ToDoAddScreen extends StatefulWidget {
 }
 
 class _ToDoAddScreenState extends State<ToDoAddScreen> {
+  LocalData localData = LocalData();
+
   TextEditingController titleController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController timeController = TextEditingController();
@@ -128,7 +133,9 @@ class _ToDoAddScreenState extends State<ToDoAddScreen> {
                 time: timeController.text,
                 description: descriptionController.text,
               );
-              Navigator.pop(context, todoModel);
+
+              localData.setObject(key: localData.todoData, val: jsonEncode(todoModel));
+              Navigator.pop(context);
             },
             style: ButtonStyle(
               fixedSize: MaterialStateProperty.all(const Size(double.infinity, 45)),
