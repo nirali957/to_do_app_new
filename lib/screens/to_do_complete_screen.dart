@@ -15,7 +15,7 @@ class _ToDoCompleteScreenState extends State<ToDoCompleteScreen> {
       appBar: AppBar(
         title: const Text("To Do Complete"),
       ),
-      body: listOfCompleteData.isEmpty
+      body: listOfCompleteData.todoList!.isEmpty
           ? const Center(
               child: Text(
                 "No Data Found",
@@ -26,11 +26,11 @@ class _ToDoCompleteScreenState extends State<ToDoCompleteScreen> {
               ),
             )
           : ListView.separated(
-              itemCount: listOfCompleteData.length,
+              itemCount: listOfCompleteData.todoList!.length,
               padding: const EdgeInsets.symmetric(vertical: 15),
               separatorBuilder: (context, index) => const SizedBox(height: 15),
               itemBuilder: (context, index) {
-                final item = listOfCompleteData[index];
+                final item = listOfCompleteData.todoList![index];
                 return ListTile(
                   tileColor: Colors.grey.shade400,
                   title: Text('${item.title}'),

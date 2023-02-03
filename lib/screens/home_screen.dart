@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   LocalData localData = LocalData();
-  List<ToDoModel> listOfData = [];
+  ToDoModel? listOfData;
 
   @override
   void initState() {
@@ -25,8 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getToDoData() async {
-    dynamic data = await localData.getObject(key: localData.todoData);
-    listOfData.add(ToDoModel.fromJson(data));
+    dynamic data = await localData.getObject(localData.todoData);
+    debugPrint("data ----------->> $data");
+    listOfData = ToDoModel.fromJson(data);
     setState(() {});
   }
 
@@ -49,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: listOfData.isEmpty
+      body: listOfData == null || listOfData!.todoList!.isEmpty
           ? const Center(
               child: Text(
                 "No Data Found",
@@ -60,19 +61,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           : ListView.separated(
-              itemCount: listOfData.length,
+              itemCount: listOfData!.todoList!.length,
               padding: const EdgeInsets.symmetric(vertical: 15),
               separatorBuilder: (context, index) => const SizedBox(height: 15),
               itemBuilder: (context, index) {
-                final item = listOfData[index];
+                final item = listOfData!.todoList![index];
                 return Slidable(
                   key: UniqueKey(),
                   startActionPane: ActionPane(
                     motion: const ScrollMotion(),
                     dismissible: DismissiblePane(
                       onDismissed: () {
-                        listOfCompleteData.add(item);
-                        listOfData.removeAt(index);
+                        listOfCompleteData.todoList!.add(item);
+                        listOfData!.todoList!.removeAt(index);
                         setState(() {});
                       },
                     ),
@@ -101,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
 
                           if (data != null) {
-                            listOfData[index] = data;
+                            listOfData!.todoList![index] = data;
                             setState(() {});
                           }
                         },
@@ -112,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       SlidableAction(
                         onPressed: (context) {
-                          listOfData.removeAt(index);
+                          listOfData!.todoList!.removeAt(index);
                           setState(() {});
                         },
                         backgroundColor: const Color(0xFFFE4A49),
@@ -132,18 +133,13 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          dynamic data = await Navigator.push(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => const ToDoAddScreen(),
             ),
-          );
-
-          if (data != null) {
-            listOfData.add(data);
-            setState(() {});
-          }
+          ).then((value) => getToDoData());
         },
         child: const Icon(Icons.add),
       ),

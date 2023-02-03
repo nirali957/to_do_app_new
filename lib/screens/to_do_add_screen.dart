@@ -5,7 +5,7 @@ import 'package:to_do_app_new/model/to_do_model.dart';
 import 'package:to_do_app_new/utiles/local_data.dart';
 
 class ToDoAddScreen extends StatefulWidget {
-  final ToDoModel? item;
+  final TodoList? item;
   const ToDoAddScreen({Key? key, this.item}) : super(key: key);
 
   @override
@@ -13,12 +13,24 @@ class ToDoAddScreen extends StatefulWidget {
 }
 
 class _ToDoAddScreenState extends State<ToDoAddScreen> {
+  ToDoModel toDoModel = ToDoModel();
   LocalData localData = LocalData();
 
   TextEditingController titleController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController timeController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+
+  getData() async {
+    if (await localData.containData(localData.todoData)) {
+      dynamic data = await localData.getObject(localData.todoData);
+      debugPrint("data ---------->> $data");
+      toDoModel = ToDoModel.fromJson(data);
+    } else {
+      toDoModel.todoList = [];
+    }
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -29,6 +41,7 @@ class _ToDoAddScreenState extends State<ToDoAddScreen> {
       timeController.text = widget.item!.time!;
       descriptionController.text = widget.item!.description!;
     }
+    getData();
     super.initState();
   }
 
@@ -90,8 +103,10 @@ class _ToDoAddScreenState extends State<ToDoAddScreen> {
                 context: context,
                 initialTime: TimeOfDay.now(),
               );
-              debugPrint("Time ---------->> ${pickTime!.format(context)}");
-              timeController.text = pickTime.format(context);
+              if (pickTime != null) {
+                debugPrint("Time ---------->> ${pickTime.format(context)}");
+                timeController.text = pickTime.format(context);
+              }
               setState(() {});
             },
             child: TextField(
@@ -127,14 +142,15 @@ class _ToDoAddScreenState extends State<ToDoAddScreen> {
           const SizedBox(height: 30),
           ElevatedButton(
             onPressed: () {
-              ToDoModel todoModel = ToDoModel(
+              TodoList todoList = TodoList(
                 title: titleController.text,
                 date: dateController.text,
                 time: timeController.text,
                 description: descriptionController.text,
               );
-
-              localData.setObject(key: localData.todoData, val: jsonEncode(todoModel));
+              toDoModel.todoList!.add(todoList);
+              localData.removeData(localData.todoData);
+              localData.setObject(localData.todoData, jsonEncode(toDoModel));
               Navigator.pop(context);
             },
             style: ButtonStyle(
